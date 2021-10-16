@@ -30,15 +30,24 @@ def get_inc_dec(diff:int) -> int:
     else:
         return 1
 
-def get_info_list(ticker:str, low_year:int, high_year:int) -> list(tuple):
+def get_info_list(ticker:str, low_year:int, high_year:int) -> list:
     """
     gets info between low_year and high year inclusive
     """
     info_cursor = ctx.cursor().execute(f"SELECT * FROM US_STOCKS_DAILY.PUBLIC.STOCK_HISTORY WHERE symbol='{ticker}' AND date<'{high_year+1}-1-1' AND date>='{low_year}-1-1' ORDER BY date")
     return info_cursor.fetchall()
 
-def get_important_features(point:tuple) -> dict:
-    
+def get_feature_vector(point:tuple) -> list:
+    l = []
+
+    l.append(point[3])
+    l.append(point[4])
+    l.append(point[5])
+    l.append(point[6])
+    l.append(point[7])
+    l.append(point[8])
+
+    return l
 
 def main():
     prediction_year = 2019
@@ -49,11 +58,11 @@ def main():
     
     infoList = get_info_list(ticker, train_range[0], train_range[1])
     target = get_inc_dec(year_difference(prediction_year))
-        
+    print(len(infoList))
 
-    infoList = info.fetchall()
+    infoList = infoList[0:-1:10]
 
-    for pnt in result:
+    for pnt in infoList:
         d = dict()
         print(pnt)
         
