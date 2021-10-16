@@ -99,7 +99,7 @@ def train_model(ticker: str, data: list) -> list:
         x, label, test_size=0.2, random_state=0)
     param = [100, 1, 0.01]
     kernels = ['linear', 'rbg', 'sigmoid']
-    SVM = svm.LinearSVC(C=param[0], kernel=kernels[0], gamma='scale')
+    SVM = svm.SVC(C=param[0], kernel=kernels[0], gamma='scale')
     currKfold = KFold(n_splits=3, shuffle=True, random_state=0)
     print("Run")
     result = cross_validate(estimator=SVM, X=train_X, y=train_Y, scoring=[
