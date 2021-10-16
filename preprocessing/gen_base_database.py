@@ -97,10 +97,9 @@ def train_model(ticker: str, data: list) -> list:
     x = dataset[:, :-1]
     train_X, test_X, train_Y, test_Y = train_test_split(
         x, label, test_size=0.2, random_state=0)
-    param = [100, 1, 0.01]
     kernels = ['linear', 'rbg', 'sigmoid']
-    SVM = svm.LinearSVC(C=param[0], kernel=kernels[0], gamma='scale')
-    currKfold = KFold(n_splits=3, shuffle=True, random_state=0)
+    SVM = svm.SVC(C=0.1)
+    currKfold = KFold(n_splits=4, shuffle=True, random_state=0)
     print("Run")
     result = cross_validate(estimator=SVM, X=train_X, y=train_Y, scoring=[
                             'accuracy', 'recall', 'precision'], cv=currKfold)
@@ -133,8 +132,8 @@ def main():
     # d['ticker'] = ticker
     # d['x'] = datalist
     # d['y'] = target
-    dataList = generateTicker('AAPL', 2009, 2018)
-    train_model('AAPL', dataList)
+    dataList = generateTicker('BP', 2009, 2018)
+    train_model('BP', dataList)
 
 
 if __name__ == "__main__":
