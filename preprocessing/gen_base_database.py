@@ -12,8 +12,8 @@ ctx = snowflake.connector.connect(
     account=account
     )
 
-def year_difference(year: int) -> int:
-    query_string = f"SELECT * FROM US_STOCKS_DAILY.PUBLIC.STOCK_HISTORY WHERE symbol='AAPL' AND date >= '{year}-01-01' AND date < '{year+1}-1-1' ORDER BY date"
+def year_difference(ticker:str, year: int) -> int:
+    query_string = f"SELECT * FROM US_STOCKS_DAILY.PUBLIC.STOCK_HISTORY WHERE symbol='{ticker}' AND date >= '{year}-01-01' AND date < '{year+1}-1-1' ORDER BY date"
     data_cursor = ctx.cursor().execute(query_string)
     data = data_cursor.fetchall()
 
@@ -57,13 +57,22 @@ def main():
     ticker = 'AAPL'
     
     infoList = get_info_list(ticker, train_range[0], train_range[1])
-    target = get_inc_dec(year_difference(prediction_year))
-    print(len(infoList))
+    target = get_inc_dec(year_difference(ticker, prediction_year))
 
     infoList = infoList[0:-1:10]
+    for line in infoList:
+        datalist.append(get_feature_vector(line))
 
-    for pnt in infoList:
-        d = dict()
+    d = dict()
+    d['ticker'] = ticker
+    d['x'] = datalist
+    d['y'] = target
+
+
+
+
+
+    
         
         
 
