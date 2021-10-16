@@ -64,7 +64,7 @@ def main():
 
     for pnt in infoList:
         d = dict()
-        print(pnt)
+        
         
 
     
