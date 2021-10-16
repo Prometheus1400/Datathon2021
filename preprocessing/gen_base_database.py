@@ -1,7 +1,13 @@
 #!/usr/bin/env python
 import snowflake.connector
 from user_info import user, password, account
+
+from sklearn.model_selection import train_test_split, KFold, cross_validate
+from sklearn import svm
+from sklearn.metrics import recall_score, accuracy_score, classification_report
+
 import pandas as pd
+import numpy as np
 import tqdm
 # must create user_info with user, password, account value yourself
 
@@ -84,6 +90,29 @@ def generateTicker(ticker: str, start_year: int, end_year: int) -> list:
     return dataList
 
 
+def train_model(ticker: str, data: list) -> list:
+    result = []
+    dataset = np.array(data)
+    label = dataset[:, -1].astype(int)
+    x = dataset[:, :-1]
+    train_X, test_X, train_Y, test_Y = train_test_split(
+        x, label, test_size=0.2, random_state=0)
+    param = [100, 1, 0.01]
+    kernels = ['linear', 'rbg', 'sigmoid']
+    SVM = svm.SVC(C=param[0], kernel=kernels[0], gamma='scale')
+    currKfold = KFold(n_splits=3, shuffle=True, random_state=0)
+    result = cross_validate(estimator=SVM, X=train_X, y=train_Y, scoring=[
+                            'accuracy', 'recall', 'precision'], cv=currKfold)
+    avg_recall = np.mean(result['test_recall'])
+    avg_accuracy = np.mean(result['test_accuracy'])
+    avg_precision = np.mean(result['test_precision'])
+    print("Ticker: ", ticker)
+    print("Recall: ", avg_recall)
+    print("Accuracy: ", avg_accuracy)
+    print("Precision: ", avg_precision)
+    return result
+
+
 def main():
     # prediction_year = 2019
     # train_range = (2008, 2018)
@@ -104,7 +133,7 @@ def main():
     # d['x'] = datalist
     # d['y'] = target
     dataList = generateTicker('AAPL', 2009, 2018)
-    print(dataList[0])
+    train_model('AAPL', dataList)
 
 
 if __name__ == "__main__":
