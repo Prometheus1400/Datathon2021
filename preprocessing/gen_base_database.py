@@ -12,6 +12,8 @@ ctx = snowflake.connector.connect(
     account=account
 )
 
+yearDiff = dict()
+
 
 def year_difference(ticker: str, year: int) -> int:
     query_string = f"SELECT * FROM US_STOCKS_DAILY.PUBLIC.STOCK_HISTORY WHERE symbol='{ticker}' AND date >= '{year}-01-01' AND date < '{year+1}-1-1' ORDER BY date"
@@ -20,7 +22,7 @@ def year_difference(ticker: str, year: int) -> int:
 
     year_start = data[0][3]  # opening stock price for the year
     year_end = data[-1][6]  # closing stock price for the year
-    return year_start - year_end
+    return year_end - year_start
 
 
 def get_inc_dec(diff: int) -> int:
@@ -55,24 +57,54 @@ def get_feature_vector(point: tuple) -> list:
     return l
 
 
-def main():
-    prediction_year = 2019
-    train_range = (2008, 2018)
-    datalist = []
-    # tickerList = []
-    ticker = 'AAPL'
+def getFeatureVector(curr: tuple) -> list:
+    global yearDiff
+    l = []
+    for i in range(3, 9):
+        l.append(curr[i])
+    l = list(map(float, l))
+    trend = -1
+    if (curr[1], curr[2].year) not in yearDiff:
+        trend = year_difference(curr[1], curr[2].year)
+        yearDiff[curr[1], curr[2].year] = trend
+    else:
+        trend = yearDiff[curr[1], curr[2].year]
+    convertToClass = get_inc_dec(trend)
+    l.append(convertToClass)
+    return l
 
+
+def generateTicker(ticker: str, start_year: int, end_year: int) -> list:
+    train_range = (start_year, end_year)
+    dataList = []
     infoList = get_info_list(ticker, train_range[0], train_range[1])
-    target = get_inc_dec(year_difference(ticker, prediction_year))
-
     infoList = infoList[0:-1:10]
-    for line in infoList:
-        datalist.append(get_feature_vector(line))
+    for obj in infoList:
+        dataList.append(getFeatureVector(obj))
+    return dataList
 
-    d = dict()
-    d['ticker'] = ticker
-    d['x'] = datalist
-    d['y'] = target
+
+def main():
+    # prediction_year = 2019
+    # train_range = (2008, 2018)
+    # datalist = []
+    # # tickerList = []
+    # ticker = 'AAPL'
+
+    # # 1 list with tuple as 1 data point
+    # infoList = get_info_list(ticker, train_range[0], train_range[1])
+    # target = get_inc_dec(year_difference(ticker, prediction_year))
+
+    # infoList = infoList[0:-1:10]  # filter by every 10 data points
+    # for line in infoList:
+    #     datalist.append(get_feature_vector(line))  # 1 list of list
+
+    # d = dict()
+    # d['ticker'] = ticker
+    # d['x'] = datalist
+    # d['y'] = target
+    dataList = generateTicker('AAPL', 2009, 2018)
+    print(dataList[0])
 
 
 if __name__ == "__main__":
