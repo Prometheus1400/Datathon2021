@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import snowflake.connector
 from user_info import user, password, account
+#must create user_info with user, password, account value yourself
 
 # Gets the version
 ctx = snowflake.connector.connect(
