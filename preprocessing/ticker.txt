@@ -1,4 +1,3 @@
-XOM
 CVX
 CHTEX.BR
 PTR

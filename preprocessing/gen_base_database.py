@@ -149,21 +149,23 @@ def train_model(ticker: str, data: list) -> list:
     dataset = np.array(data)
     label = dataset[:, -1].astype(int)
     x = dataset[:, :-1]
+    # print(label.shape)
+    # print(x.shape)
     # train_X, test_X, train_Y, test_Y = train_test_split(
     #     x, label, test_size=0.3, random_state=0)
-    SVM = svm.SVC(C=100, kernel='rbf')
+    # SVM = svm.SVC(C=100, kernel='rbf')
     currKfold = KFold(n_splits=4, shuffle=True, random_state=0)
-    result = cross_val_score(SVM, x, label, cv=currKfold)
-    print("Avg accuracy: {}".format(result.mean()))
-    result = cross_validate(SVM, X=x, y=label, scoring=[
-        'accuracy', 'recall', 'precision'], cv=currKfold)
-    avg_recall = np.mean(result['test_recall'])
-    avg_accuracy = np.mean(result['test_accuracy'])
-    avg_precision = np.mean(result['test_precision'])
-    print("Ticker: ", ticker)
-    print("Recall: ", avg_recall)
-    print("Accuracy: ", avg_accuracy)
-    print("Precision: ", avg_precision)
+    # # result = cross_val_score(SVM, x, label, cv=currKfold)
+    # # print("Avg accuracy: {}".format(result.mean()))
+    # result = cross_validate(SVM, X=x, y=label, scoring=[
+    #     'accuracy', 'recall', 'precision'], cv=currKfold)
+    # avg_recall = np.mean(result['test_recall'])
+    # avg_accuracy = np.mean(result['test_accuracy'])
+    # avg_precision = np.mean(result['test_precision'])
+    # print("Ticker: ", ticker)
+    # print("Recall: ", avg_recall)
+    # print("Accuracy: ", avg_accuracy)
+    # print("Precision: ", avg_precision)
     # svclassifier = svm.SVC(C=100, kernel='rbf')
     # svclassifier.fit(x, label)
     # filename = 'BaselineModel.sav'
@@ -171,9 +173,18 @@ def train_model(ticker: str, data: list) -> list:
     # pred_Y = svclassifier.predict(test_X)
     # print(confusion_matrix(test_Y, pred_Y))
     # print(classification_report(test_Y, pred_Y))
-    # loaded_model = joblib.load("./trained_models/BaselineModel.sav")
-    # result = loaded_model.score(x, label)
-    # print("Accuracy: ", result)
+    loaded_model = joblib.load("./trained_models/ModelRelevant.sav")
+    result = cross_validate(loaded_model, X=x, y=label, scoring=[
+        'accuracy', 'recall', 'precision'], cv=currKfold)
+    avg_recall = np.mean(result['test_recall'])
+    avg_accuracy = np.mean(result['test_accuracy'])
+    avg_precision = np.mean(result['test_precision'])
+    print("With additional features such as CO2 emission and rainfall:")
+    print("Ticker: ", ticker)
+    print("Recall: ", avg_recall)
+    print("Accuracy: ", avg_accuracy)
+    print("Precision: ", avg_precision)
+    print()
     return result
 
 
@@ -197,10 +208,11 @@ def main():
     # d['x'] = datalist
     # d['y'] = target
 
-    ticker = 'RDS-A'
-    dataList = generateTicker(ticker, 2009, 2018)
-    print(dataList)
-    train_model(ticker, dataList)
+    test_data = ['BP', 'CVX', 'WMT', 'ENLC', 'FB', 'JNJ']
+    for ticker in test_data:
+        dataList = generateTicker(ticker, 2009, 2018)
+        # print(dataList)
+        train_model(ticker, dataList)
 
     # with open("ticker.txt") as file:
     #     lines = file.readlines()
