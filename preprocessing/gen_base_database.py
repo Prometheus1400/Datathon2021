@@ -2,10 +2,11 @@
 import snowflake.connector
 from user_info import user, password, account
 
-from sklearn.model_selection import train_test_split, KFold, cross_validate
+from sklearn.model_selection import train_test_split, KFold, cross_val_score, cross_validate
 from sklearn import svm
-from sklearn.metrics import recall_score, accuracy_score, classification_report
+from sklearn.metrics import recall_score, accuracy_score, classification_report, confusion_matrix
 
+import joblib
 import pandas as pd
 import numpy as np
 import tqdm
@@ -95,21 +96,28 @@ def train_model(ticker: str, data: list) -> list:
     dataset = np.array(data)
     label = dataset[:, -1].astype(int)
     x = dataset[:, :-1]
-    train_X, test_X, train_Y, test_Y = train_test_split(
-        x, label, test_size=0.2, random_state=0)
-    kernels = ['linear', 'rbg', 'sigmoid']
-    SVM = svm.SVC(C=0.1)
-    currKfold = KFold(n_splits=4, shuffle=True, random_state=0)
-    print("Run")
-    result = cross_validate(estimator=SVM, X=train_X, y=train_Y, scoring=[
-                            'accuracy', 'recall', 'precision'], cv=currKfold)
-    avg_recall = np.mean(result['test_recall'])
-    avg_accuracy = np.mean(result['test_accuracy'])
-    avg_precision = np.mean(result['test_precision'])
-    print("Ticker: ", ticker)
-    print("Recall: ", avg_recall)
-    print("Accuracy: ", avg_accuracy)
-    print("Precision: ", avg_precision)
+    # train_X, test_X, train_Y, test_Y = train_test_split(
+    #     x, label, test_size=0.3, random_state=0)
+    # SVM = svm.SVC(C=100, kernel='rbf')
+    # currKfold = KFold(n_splits=4, shuffle=True, random_state=0)
+    # result = cross_val_score(SVM, x, label, cv=currKfold)
+    # print("Avg accuracy: {}".format(result.mean()))
+    # result = cross_validate(SVM, X=x, y=label, scoring=[
+    #     'accuracy', 'recall', 'precision'], cv=currKfold)
+    # avg_recall = np.mean(result['test_recall'])
+    # avg_accuracy = np.mean(result['test_accuracy'])
+    # avg_precision = np.mean(result['test_precision'])
+    # print("Ticker: ", ticker)
+    # print("Recall: ", avg_recall)
+    # print("Accuracy: ", avg_accuracy)
+    # print("Precision: ", avg_precision)
+    svclassifier = svm.SVC(C=100, kernel='rbf')
+    svclassifier.fit(x, label)
+    filename = 'BaselineModel.sav'
+    joblib.dump(svclassifier, filename)
+    # pred_Y = svclassifier.predict(test_X)
+    # print(confusion_matrix(test_Y, pred_Y))
+    # print(classification_report(test_Y, pred_Y))
     return result
 
 
@@ -132,8 +140,23 @@ def main():
     # d['ticker'] = ticker
     # d['x'] = datalist
     # d['y'] = target
-    dataList = generateTicker('BP', 2009, 2018)
-    train_model('BP', dataList)
+
+    # ticker = "CVX"
+    # dataList = generateTicker("CVX", 2009, 2018)
+    # print(dataList)
+    # train_model(ticker, dataList)
+
+    with open("ticker.txt") as file:
+        lines = file.readlines()
+        lines = [line.rstrip() for line in lines]
+    ticker = lines
+    data = []
+    for i in range(1):
+        dataList = generateTicker(ticker[i], 2009, 2018)
+        data += dataList
+    # print(data[0])
+    # print(len(data))
+    train_model("", data)
 
 
 if __name__ == "__main__":
