@@ -179,7 +179,7 @@ def train_model(ticker: str, data: list) -> list:
     avg_recall = np.mean(result['test_recall'])
     avg_accuracy = np.mean(result['test_accuracy'])
     avg_precision = np.mean(result['test_precision'])
-    print("With additional features such as CO2 emission and rainfall:")
+    print("With additional features but relevant such as CO2 emission and rainfall in India (one of the big importer for oil):")
     print("Ticker: ", ticker)
     print("Recall: ", avg_recall)
     print("Accuracy: ", avg_accuracy)
@@ -208,7 +208,9 @@ def main():
     # d['x'] = datalist
     # d['y'] = target
 
-    test_data = ['BP', 'CVX', 'WMT', 'ENLC', 'FB', 'JNJ']
+    # Energy, Technology, Healthcare, Consumer centered
+    test_data = ['PUMP', 'TOT', 'PNRL', 'TXN', 'FLEX',
+                 'LORL', 'CVS', 'RCKT', 'CPSI', 'WMT', 'GPI', 'KBSF']
     for ticker in test_data:
         dataList = generateTicker(ticker, 2009, 2018)
         # print(dataList)
