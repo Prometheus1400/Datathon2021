@@ -53,7 +53,8 @@ SELECT Stock_history."SYMBOL", Stock_history."Year", Stock_history."Month", Stoc
     Stock_history."HIGH", Stock_history."LOW", Stock_history."CLOSE", 
     Stock_history."VOLUME", Stock_history."ADJCLOSE",
     Env_var."CO2 from Oil", Env_var."CO2 from Coal",
-    Env_var."CO2 from Gas", Env_var."Total CO2"
+    Env_var."CO2 from Gas", Env_var."Total CO2",
+    Irrelevant."Value"
 FROM
     ((SELECT 
         SYMBOL, YEAR(DATE) as "Year", MONTH(DATE) as "Month",OPEN, HIGH, LOW, CLOSE, VOLUME, ADJCLOSE    
@@ -77,7 +78,10 @@ INNER JOIN
     ((SELECT * FROM "ENVIRONMENT_DATA_ATLAS"."ENVIRONMENT"."CDIACCO2STATES" WHERE "Variable Name"='Total Carbon Emissions' and "State regionid" = 'US' and "Frequency" = 'M' order by "Date") as Total)
         on Oil."Date" = Total."Date") as Env_var)
 ON
-    Env_var."Month" = Stock_history."Month" and Env_var."Year" = Stock_history."Year";
+    Env_var."Month" = Stock_history."Month" and Env_var."Year" = Stock_history."Year"
+INNER JOIN
+    ((select MONTH("Date") as "Month", YEAR("Date") as "Year", "Value" from "ENVIRONMENT_DATA_ATLAS"."ENVIRONMENT"."WRISGWL2019" where "Location Name" = 'New Delhi' and "Frequency" = 'M' and "Indicator Name" = 'Rainfall Actual Level' order by "Date") as Irrelevant)
+ON Stock_history."Month" = Irrelevant."Month" and Stock_history."Year" = Irrelevant."Year";
 """
     )
     # info_cursor = ctx.cursor().execute(
