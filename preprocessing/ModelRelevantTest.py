@@ -173,7 +173,7 @@ def train_model(ticker: str, data: list) -> list:
     # pred_Y = svclassifier.predict(test_X)
     # print(confusion_matrix(test_Y, pred_Y))
     # print(classification_report(test_Y, pred_Y))
-    loaded_model = joblib.load("./trained_models/ModelRelevant.sav")
+    loaded_model = joblib.load("./trained_models/Relevant.sav")
     result = cross_validate(loaded_model, X=x, y=label, scoring=[
         'accuracy', 'recall', 'precision'], cv=currKfold)
     avg_recall = np.mean(result['test_recall'])
